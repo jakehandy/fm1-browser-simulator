@@ -65,6 +65,7 @@ would need an emulator of that CPU. Use the firmware's `.rfm1` build instead.
 | **Encoders from the keyboard** | `,` `.` SELECT, `←` `→` PRESETS, `↑` `↓` ALGORITHM, `1`–`4` the four knobs (`Shift` turns down). The ‹ › buttons beside a slider send single clicks, the way the real encoder steps. |
 | **Buttons** | Labelled with the running firmware's own names, and its live labels when it gives them. Hold as long as you like. To press two at once, `Shift`-click the first (it gets a dashed outline), then click the second: both go down together, as two fingers would, and come up together (h1's SEQ + REC for LAYERS). `Shift`-click a button and then turn an encoder or play a key, and it stays held until you click it again (EDIT + SELECT). `Z` `X` are OCT − and OCT +. |
 | **MIDI in** | Tick it to play the firmware from a MIDI keyboard or a DAW (Web MIDI). |
+| **My FM-1** | With a real FM-1 running [RemoteFM1](https://github.com/Quixotic7/RemoteFM1) (0.3 or later) plugged in over USB, tick it to play the simulator from the FM-1's own keys, buttons, encoders and MASTER. The page's screen and LEDs show on the FM-1; the sound comes from the computer. Chrome or Edge (Web MIDI with SysEx). |
 | **Power cycle** | Restarts the firmware with its saved state. *About this firmware* erases that state. |
 
 ![the same panel with knobs](docs/img/knobs.png)
@@ -87,6 +88,8 @@ host for that format, written from the spec:
   time with the same 44.1 kHz audio blocks and 15 ms frames the FM-1 uses. It has no DOM, so the tests run it
   in Node.
 - [`src/app.js`](src/app.js) is the panel: screen, keys, buttons, sliders and knobs, LEDs, MIDI, and storage.
+- [`src/remote.js`](src/remote.js) is the "my FM-1" link: a RemoteFM1 session over Web MIDI, written from
+  RemoteFM1's protocol. [`src/remote-screen.js`](src/remote-screen.js) encodes the screen for it.
 - The optional **sim1** extension lets a firmware report what each encoder is tied to, its range and its value
   text, plus an accent colour. That is how h1's sliders show `TEMPO 112 BPM` and the page takes on each
   instrument's ink. Other hosts ignore it. Details in [docs/FIRMWARE-INTERFACE.md](docs/FIRMWARE-INTERFACE.md).
@@ -99,7 +102,7 @@ either.
 
 ```sh
 npm run serve        # the page, from src/
-npm test             # boots every .rfm1 in firmware/ headless: screen, sound, flash
+npm test             # boots every .rfm1 in firmware/ headless: screen, sound, flash; then the RemoteFM1 link
 node tests/run.js path/to/other.rfm1
 npm run build        # dist/fm1-simulator.html, one self-contained file
 tools/update-h1.sh ../h1 0.3   # rebuild the bundled h1 from a checkout and refresh dist/
@@ -112,7 +115,10 @@ clang's wasm32 target, without emscripten.
 
 The `.rfm1` format and the `fm1core` ABI are Michael P Jones's (Quixotic7), from RemoteFM1 and FM1VST.
 fm1-base is Charles Vestal's, and Felucca, the firmware most of the field grew from, is Leo Kuroshita's
-(Hügelton Instruments). This project has no code from any of them. It isn't affiliated with M-VAVE.
+(Hügelton Instruments). This project has no code from any of them, except `src/remote-screen.js`: RemoteFM1's
+screen encoder (libremotefm1's `host/src/screen.c`, by the RemoteFM1 contributors) translated to JavaScript, which
+stays under MPL-2.0. The RemoteFM1 protocol that "my FM-1" speaks is Quixotic7's and the RemoteFM1 contributors'.
+[NOTICE.md](NOTICE.md) has the details. It isn't affiliated with M-VAVE.
 
-The simulator is MIT licensed ([LICENSE](LICENSE)). Every firmware keeps its own licence: the page shows each
+The simulator is MIT licensed ([LICENSE](LICENSE)), but for that one MPL-2.0 file. Every firmware keeps its own licence: the page shows each
 one's licence texts, credits and exact source under *About this firmware*. h1 is by Jake Handy, also MIT.

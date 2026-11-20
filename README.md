@@ -4,7 +4,7 @@ Play any M-VAVE FM-1 firmware in a web browser. Drop in an `.rfm1` file and it r
 240 × 240 screen, its sound, the 27 keys, the seven encoders, MASTER, the 14 buttons and their lights. Nothing to
 install, and nothing touches your FM-1.
 
-It opens with **[h1](https://github.com/jakehandy/h1)** loaded. To put h1 on a real FM-1, install it from
+It opens with **[h1 (or handy-1)](https://github.com/jakehandy/h1)** loaded. To put h1 on a real FM-1, install it from
 [its listing on The Firmware Hub](https://thefirmwarehub.com/firmware/h1/).
 
 ![h1 running in the simulator, controls as sliders](docs/img/sliders.png)

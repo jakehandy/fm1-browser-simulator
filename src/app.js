@@ -460,7 +460,7 @@
         m.inputs.forEach(function (i) {
           i.onmidimessage = function (ev) {
             var d = ev.data;
-            if (!core || !d.length || d[0] < 0x80 || d[0] >= 0xf0) return;
+            if (!core || !d.length || d[0] < 0x80 || d[0] >= 0xf0 || (remote && remote.owns(i))) return;
             startAudio();
             core.midi(d[0], d[1] || 0, d[2] || 0);
           };
@@ -469,6 +469,33 @@
       hook();
       m.onstatechange = hook;
     }, function () { $("midi").checked = false; });
+  }
+
+  /* ---- my FM-1: a real FM-1 running RemoteFM1 is the panel (src/remote.js). Its events go where the
+   * on-screen controls' go, through the firmware's own numbering: btnId, encId and encDir ---- */
+  var remote = null;
+  function remoteOn(on) {
+    var box = $("remote"), say = function (t) { $("remotest").textContent = t ? "· " + t : ""; };
+    if (remote) { remote.stop(); remote = null; }
+    say("");
+    if (!on) return;
+    if (!navigator.requestMIDIAccess || !window.Fm1Remote) { box.checked = false; say("this browser has no Web MIDI"); return; }
+    startAudio();
+    navigator.requestMIDIAccess({ sysex: true }).then(function (m) {
+      if (!box.checked || remote) return;
+      remote = Fm1Remote.start(m, {
+        key: function (k, d, v) { startAudio(); if (d) keyDown(k, v || 100); else keyUp(k); },
+        button: function (b, d) { var i = core ? core.btnId.indexOf(b) : -1; if (i >= 0) { startAudio(); press(i, d); } },
+        enc: function (e, d) { var r = core ? core.encId.indexOf(e) : -1; if (r >= 0) turn(r, d * core.encDir[r]); },
+        master: function (v) { if (core) core.master(v); },
+        status: function (st, t) { say(t); }
+      });
+    }, function () { box.checked = false; say("MIDI with SysEx was not allowed"); });
+  }
+  function remoteLeds() {
+    if (!remote || remote.state !== "live" || !core) return;
+    var l = core.leds();
+    remote.leds(Fm1Remote.ledsBody(core.btnLed.concat(core.keyLed), l.buttons.concat(l.keys), l.playGreen));
   }
 
   /* ---- the frame loop: the device clock when there is no sound, the picture and lights always ---- */
@@ -513,11 +540,13 @@
     if (core.lcdWrites() !== shownWrites) {
       shownWrites = core.lcdWrites();
       bytes = drawLcd();
+      if (remote) remote.screen(core.lcdBytes());
       lb = core.linkBytes();
       ms = (lb >= 0 ? lb : bytes) * 8 / 44000;
       linkMs += (ms - linkMs) * 0.08;
     }
     drawLeds();
+    remoteLeds();
     liveLabels();
     ctls.forEach(function (c) { sync(c, false); });
     if (t - accentT > 120) {
@@ -754,6 +783,7 @@
   setSize();
   $("size").addEventListener("change", setSize);
   $("midi").addEventListener("change", function () { midiOn(this.checked); });
+  $("remote").addEventListener("change", function () { remoteOn(this.checked); });
   $("sound").addEventListener("click", function () {
     if (!actx) return;
     if (!soundOn) startAudio(); else { muted = !muted; label(); }
@@ -767,7 +797,7 @@
     core.halted = 1;                           /* stop it saving on the way out */
     dbDel("flash", id).then(function () { run(cur); });
   });
-  window.addEventListener("pagehide", function () { saveFlash(true); });
+  window.addEventListener("pagehide", function () { saveFlash(true); if (remote) { remote.stop(); remote = null; $("remote").checked = false; } });
   document.addEventListener("visibilitychange", function () { if (document.hidden) saveFlash(true); });
   label();
 

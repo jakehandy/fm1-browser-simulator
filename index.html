@@ -102,6 +102,7 @@
       </select>
     </label>
     <label><input type="checkbox" id="midi"> MIDI in</label>
+    <label title="Play this page from a real FM-1 running the RemoteFM1 firmware, over USB (Chrome, Edge)"><input type="checkbox" id="remote"> my FM-1 <small id="remotest"></small></label>
     <button class="chip" id="power" type="button">power cycle</button>
     <div class="meter" title="How long the part of the screen that changed would take to reach the FM-1's panel over its SPI link. Under 16.7 ms is 60 frames a second.">
       <span>screen link</span>
@@ -120,6 +121,7 @@
         <dt>Buttons</dt><dd>Labelled the way the running firmware names them. Hold one with the mouse or a finger as long as you like. To press two at once, <kbd>Shift</kbd>-click the first (dashed outline), then click the second: they go down together and come up together, as with two fingers (h1's SEQ + REC). <kbd>Shift</kbd>-click one and then turn an encoder or play a key, and it stays held until you click it again (EDIT + SELECT). <kbd>Z</kbd> <kbd>X</kbd> are OCT − and OCT +.</dd>
         <dt>MASTER</dt><dd>The volume pot, passed to the firmware the way the device reads it.</dd>
         <dt>MIDI in</dt><dd>Plays the firmware from a MIDI keyboard or a DAW through Web MIDI (Chrome, Edge, Firefox).</dd>
+        <dt>My FM-1</dt><dd>Plays it from a real FM-1 running <a href="https://github.com/Quixotic7/RemoteFM1" target="_blank" rel="noopener">RemoteFM1</a> (0.3 or later), plugged in over USB: its keys, buttons, encoders and MASTER work this panel, and the page's screen and lights show on its own. Chrome or Edge, which ask to allow MIDI with SysEx. Turn the FM-1's own volume down; the sound comes from here.</dd>
       </dl>
     </div>
   </details>
@@ -146,6 +148,8 @@
 <div class="drop" id="drop">drop the .rfm1 file to run it</div>
 <script>window.FM1_BUILTIN = [{ key: "builtin:h1", url: "firmware/h1.rfm1" }];</script>
 <script src="src/rfm1.js"></script>
+<script src="src/remote-screen.js"></script>
+<script src="src/remote.js"></script>
 <script src="src/app.js"></script>
 </body>
 </html>

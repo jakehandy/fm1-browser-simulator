@@ -6,7 +6,7 @@
   "private": true,
   "scripts": {
     "build": "node tools/build.js",
-    "test": "node tests/run.js",
+    "test": "node tests/run.js && node tests/remote.js",
     "serve": "python3 -m http.server 8000"
   }
 }
